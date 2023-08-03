@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"pubsub/file"
 	"pubsub/msg"
 	"pubsub/pub"
 	"pubsub/sub"
@@ -15,7 +16,10 @@ func main() {
 	fmt.Println("")
 
 	// Start by Creating the Publisher
-	publisher := pub.NewChPublisher(uuid.MustNewUUID())
+	publisher := pub.NewChPublisher(
+		uuid.MustNewUUID(),
+		file.NewCSVMessageWriter(),
+	)
 
 	//Topics have to be created before hand
 	firstTopic := "first-topic"

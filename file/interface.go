@@ -5,5 +5,5 @@ import (
 )
 
 type MessageWriter interface {
-	Write(message msg.MessageHolder, publisherID string, subscriberID string) error
+	Write(msg.MessageHolder, string, string, string)
 }

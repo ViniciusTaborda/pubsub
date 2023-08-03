@@ -12,16 +12,16 @@ type ChannelPublisher struct {
 	Id            string
 	Subscribers   *sync.Map
 	WaitGroup     *sync.WaitGroup
-	MessageWriter file.CSVMessageWriter
+	MessageWriter file.MessageWriter
 }
 
-func NewChPublisher(id string) Publisher {
+func NewChPublisher(id string, messageWriter file.MessageWriter) Publisher {
 
 	return &ChannelPublisher{
 		Id:            id,
 		Subscribers:   &sync.Map{},
 		WaitGroup:     &sync.WaitGroup{},
-		MessageWriter: file.NewCSVMessageWriter(),
+		MessageWriter: messageWriter,
 	}
 
 }

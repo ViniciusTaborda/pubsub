@@ -14,8 +14,8 @@ type CSVMessageWriter struct {
 	mutex *sync.Mutex
 }
 
-func NewCSVMessageWriter() CSVMessageWriter {
-	return CSVMessageWriter{
+func NewCSVMessageWriter() MessageWriter {
+	return &CSVMessageWriter{
 		mutex: &sync.Mutex{},
 	}
 

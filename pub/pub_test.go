@@ -1,7 +1,9 @@
 package pub
 
 import (
+	"fmt"
 	"pubsub/errs"
+	"pubsub/file"
 	"pubsub/msg"
 	"pubsub/sub"
 	"testing"
@@ -9,7 +11,13 @@ import (
 )
 
 func TestSubscribe(t *testing.T) {
-	cp := NewChPublisher("test")
+	cp := NewChPublisher("test",
+		&file.MessageWriterMock{
+			WriteMock: func(mh msg.MessageHolder, s1, s2, s3 string) {
+				fmt.Println(mh)
+			},
+		},
+	)
 	topic := "testTopic"
 
 	testCases := []struct {
@@ -56,7 +64,13 @@ func TestGetSubsByTopic(t *testing.T) {
 		{
 			name: "No subscribers for topic",
 			test: func(t *testing.T) {
-				cp := NewChPublisher("test")
+				cp := NewChPublisher("test",
+					&file.MessageWriterMock{
+						WriteMock: func(mh msg.MessageHolder, s1, s2, s3 string) {
+							fmt.Println(mh)
+						},
+					},
+				)
 
 				subs := cp.GetSubsByTopic(topic)
 				if len(subs.([]any)) != 0 {
@@ -67,7 +81,13 @@ func TestGetSubsByTopic(t *testing.T) {
 		{
 			name: "Adding one subscriber for topic",
 			test: func(t *testing.T) {
-				cp := NewChPublisher("test")
+				cp := NewChPublisher("test",
+					&file.MessageWriterMock{
+						WriteMock: func(mh msg.MessageHolder, s1, s2, s3 string) {
+							fmt.Println(mh)
+						},
+					},
+				)
 
 				subscriber := sub.NewChSubscriber("sub1", topic, make(chan any), time.Millisecond, 1)
 
@@ -83,7 +103,13 @@ func TestGetSubsByTopic(t *testing.T) {
 		{
 			name: "Adding multiple subscribers for topic",
 			test: func(t *testing.T) {
-				cp := NewChPublisher("test")
+				cp := NewChPublisher("test",
+					&file.MessageWriterMock{
+						WriteMock: func(mh msg.MessageHolder, s1, s2, s3 string) {
+							fmt.Println(mh)
+						},
+					},
+				)
 
 				subscriber1 := sub.NewChSubscriber("sub1", topic, make(chan any), time.Millisecond, 1)
 				subscriber2 := sub.NewChSubscriber("sub2", topic, make(chan any), time.Millisecond, 1)
@@ -113,7 +139,13 @@ func TestGetTopics(t *testing.T) {
 		{
 			name: "No subscribers for topic",
 			test: func(t *testing.T) {
-				cp := NewChPublisher("test")
+				cp := NewChPublisher("test",
+					&file.MessageWriterMock{
+						WriteMock: func(mh msg.MessageHolder, s1, s2, s3 string) {
+							fmt.Println(mh)
+						},
+					},
+				)
 
 				subs := cp.GetTopics()
 				if len(subs) != 0 {
@@ -124,7 +156,13 @@ func TestGetTopics(t *testing.T) {
 		{
 			name: "Adding one topic",
 			test: func(t *testing.T) {
-				cp := NewChPublisher("test")
+				cp := NewChPublisher("test",
+					&file.MessageWriterMock{
+						WriteMock: func(mh msg.MessageHolder, s1, s2, s3 string) {
+							fmt.Println(mh)
+						},
+					},
+				)
 				topic := "testTopic"
 
 				subscriber := sub.NewChSubscriber("sub1", topic, make(chan any), time.Millisecond, 1)
@@ -141,7 +179,13 @@ func TestGetTopics(t *testing.T) {
 		{
 			name: "Adding multiple topics",
 			test: func(t *testing.T) {
-				cp := NewChPublisher("test")
+				cp := NewChPublisher("test",
+					&file.MessageWriterMock{
+						WriteMock: func(mh msg.MessageHolder, s1, s2, s3 string) {
+							fmt.Println(mh)
+						},
+					},
+				)
 				topic := "testTopic"
 				topic2 := "testTopic2"
 
@@ -174,7 +218,13 @@ func TestCreateTopic(t *testing.T) {
 		{
 			name: "No topics",
 			test: func(t *testing.T) {
-				cp := NewChPublisher("test")
+				cp := NewChPublisher("test",
+					&file.MessageWriterMock{
+						WriteMock: func(mh msg.MessageHolder, s1, s2, s3 string) {
+							fmt.Println(mh)
+						},
+					},
+				)
 
 				subs := cp.GetTopics()
 				if len(subs) != 0 {
@@ -185,7 +235,13 @@ func TestCreateTopic(t *testing.T) {
 		{
 			name: "Create one topic",
 			test: func(t *testing.T) {
-				cp := NewChPublisher("test")
+				cp := NewChPublisher("test",
+					&file.MessageWriterMock{
+						WriteMock: func(mh msg.MessageHolder, s1, s2, s3 string) {
+							fmt.Println(mh)
+						},
+					},
+				)
 				topic := "testTopic"
 
 				cp.CreateTopic(topic)
@@ -199,7 +255,13 @@ func TestCreateTopic(t *testing.T) {
 		{
 			name: "Adding multiple topics",
 			test: func(t *testing.T) {
-				cp := NewChPublisher("test")
+				cp := NewChPublisher("test",
+					&file.MessageWriterMock{
+						WriteMock: func(mh msg.MessageHolder, s1, s2, s3 string) {
+							fmt.Println(mh)
+						},
+					},
+				)
 				topic := "testTopic"
 				topic2 := "testTopic2"
 
@@ -230,7 +292,11 @@ func TestGetId(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			cp := NewChPublisher(tc.id)
+			cp := NewChPublisher(tc.id, &file.MessageWriterMock{
+				WriteMock: func(mh msg.MessageHolder, s1, s2, s3 string) {
+					fmt.Println(mh)
+				},
+			})
 			if cp.GetId() != tc.id {
 				t.Errorf("Expected id to be %s, got %s", tc.id, cp.GetId())
 			}
@@ -240,14 +306,24 @@ func TestGetId(t *testing.T) {
 
 func TestGetWaitGroup(t *testing.T) {
 
-	cp := NewChPublisher("foo")
+	cp := NewChPublisher("foo", &file.MessageWriterMock{
+		WriteMock: func(mh msg.MessageHolder, s1, s2, s3 string) {
+			fmt.Println(mh)
+		},
+	})
 	if cp.GetWaitGroup() == nil {
 		t.Error("Expected wg to be nil, got not nil")
 	}
 }
 
 func TestPublishToClosedSubscriber(t *testing.T) {
-	cp := NewChPublisher("test")
+	cp := NewChPublisher("test",
+		&file.MessageWriterMock{
+			WriteMock: func(mh msg.MessageHolder, s1, s2, s3 string) {
+				fmt.Println(mh)
+			},
+		},
+	)
 	topic := "testTopic"
 
 	cp.CreateTopic(topic)
@@ -271,7 +347,13 @@ func TestPublishToClosedSubscriber(t *testing.T) {
 }
 
 func TestPublishToSubscriber(t *testing.T) {
-	cp := NewChPublisher("test")
+	cp := NewChPublisher("test",
+		&file.MessageWriterMock{
+			WriteMock: func(mh msg.MessageHolder, s1, s2, s3 string) {
+				fmt.Println(mh)
+			},
+		},
+	)
 	topic := "testTopic"
 
 	cp.CreateTopic(topic)
