@@ -22,6 +22,7 @@ To view the code coverage, follow these steps:
 - Open it in any web browser
 
 - See example: 
+![image](https://github.com/ViniciusTaborda/pubsub/assets/72284753/5dbff54c-3306-49cd-8fc1-737b3e42dbbf)
 
 
 ## License
