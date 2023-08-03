@@ -3,23 +3,26 @@ package pub
 import (
 	"fmt"
 	"pubsub/errs"
+	"pubsub/file"
 	"pubsub/msg"
 	"pubsub/sub"
 	"sync"
 )
 
 type ChannelPublisher struct {
-	Id          string
-	Subscribers *sync.Map
-	WaitGroup   *sync.WaitGroup
+	Id            string
+	Subscribers   *sync.Map
+	WaitGroup     *sync.WaitGroup
+	MessageWriter file.CSVMessageWriter
 }
 
 func NewChPublisher(id string) Publisher {
 
 	return &ChannelPublisher{
-		Id:          id,
-		Subscribers: &sync.Map{},
-		WaitGroup:   &sync.WaitGroup{},
+		Id:            id,
+		Subscribers:   &sync.Map{},
+		WaitGroup:     &sync.WaitGroup{},
+		MessageWriter: file.NewCSVMessageWriter(),
 	}
 
 }
@@ -42,6 +45,9 @@ func (cp *ChannelPublisher) Publish(message msg.MessageHolder, topic string) err
 		select {
 		case subscriber.GetChannel() <- message:
 			fmt.Printf("Value sent to %s\n", subscriber.GetId())
+
+			cp.MessageWriter.Write(message, cp.Id, subscriber.GetId(), topic)
+
 		default:
 		}
 	}

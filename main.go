@@ -15,6 +15,7 @@ func main() {
 	publisher := pub.NewChPublisher(uuid.MustNewUUID())
 
 	exampleTopic := "example-topic"
+	exampleTopic2 := "example-topic2"
 
 	subscriber1 := sub.NewChSubscriber(
 		exampleTopic,
@@ -31,9 +32,10 @@ func main() {
 	)
 
 	publisher.CreateTopic(exampleTopic)
+	publisher.CreateTopic(exampleTopic2)
 
 	publisher.Subscribe(subscriber1, exampleTopic)
-	publisher.Subscribe(subscriber2, exampleTopic)
+	publisher.Subscribe(subscriber2, exampleTopic2)
 
 	go subscriber1.Listen(publisher.GetWaitGroup())
 	go subscriber2.Listen(publisher.GetWaitGroup())
@@ -43,6 +45,12 @@ func main() {
 		Body:  "Hello, World",
 		Id:    uuid.MustNewUUID(),
 	}, exampleTopic)
+
+	publisher.Publish(&msg.GenericMessageHolder{
+		Topic: exampleTopic2,
+		Body:  "Hello, World 2",
+		Id:    uuid.MustNewUUID(),
+	}, exampleTopic2)
 
 	publisher.GetWaitGroup().Wait()
 }

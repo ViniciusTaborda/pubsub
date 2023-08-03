@@ -12,6 +12,10 @@ func (gmh *GenericMessageHolder) GetBody() any {
 	return gmh.Body
 }
 
-func (gmh *GenericMessageHolder) String() any {
+func (gmh *GenericMessageHolder) GetStringBody() string {
+	return gmh.Body.(string)
+}
+
+func (gmh *GenericMessageHolder) String() string {
 	return fmt.Sprintf("%s - %s - %s \n", gmh.Id, gmh.Topic, gmh.Body)
 }
