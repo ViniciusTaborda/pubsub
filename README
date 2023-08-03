@@ -1,4 +1,4 @@
-# PubSub
+## PubSub
 
 This repository contains a simple implementation of the Publish-Subscribe pattern in Go.
 
