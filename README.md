@@ -20,8 +20,8 @@ To view the code coverage, follow these steps:
  ```
 - This will run the tests and export the coverage information to a `coverage.html` file. 
 - Open it in any web browser
+- See example:
 
-- See example: 
 ![image](https://github.com/ViniciusTaborda/pubsub/assets/72284753/5dbff54c-3306-49cd-8fc1-737b3e42dbbf)
 
 
