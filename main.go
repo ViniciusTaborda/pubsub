@@ -33,14 +33,14 @@ func main() {
 		uuid.MustNewUUID(),
 		make(chan any),
 		(time.Second * 5),
-		3,
+		2,
 	)
 	subscriber2 := sub.NewChSubscriber(
 		firstTopic,
 		uuid.MustNewUUID(),
 		make(chan any),
 		(time.Second * 5),
-		3,
+		2,
 	)
 
 	//Subscribe each subscriber to a topic

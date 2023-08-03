@@ -31,19 +31,26 @@ func NewChSubscriber(topic, id string, messageCh chan any, timeout time.Duration
 func (cs *ChannelSubscriber) Listen(waitGroup *sync.WaitGroup) any {
 	defer waitGroup.Done()
 
-	for i := 1; i < cs.Attempts+1; i++ {
+	currentAttempt := 0
+
+	for {
 		select {
 		case message := <-cs.MessageCh:
 			fmt.Printf("Received: %s\n", message.(msg.MessageHolder))
 		case <-cs.GetTimeOut():
+
+			currentAttempt++
+
+			if currentAttempt > cs.Attempts {
+				fmt.Printf("%s - Max attempts reached, quitting...\n", cs.Id)
+				return nil
+			}
+
 			fmt.Printf(
 				"%s - %d Attempt - Nothing received... \n",
-				cs.Id, i)
+				cs.Id, currentAttempt)
 		}
 	}
-
-	return nil
-
 }
 
 func (cs *ChannelSubscriber) GetTopic() string {
