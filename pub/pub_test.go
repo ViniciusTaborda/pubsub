@@ -19,7 +19,7 @@ func TestSubscribe(t *testing.T) {
 		{
 			name: "Subscribe with closed subscriber",
 			test: func(t *testing.T) {
-				subscriber := sub.NewChSubscriber("sub1", topic, make(chan any), time.Hour)
+				subscriber := sub.NewChSubscriber("sub1", topic, make(chan any), time.Millisecond, 1)
 
 				subscriber.Close()
 				err := cp.Subscribe(subscriber, topic)
@@ -31,7 +31,7 @@ func TestSubscribe(t *testing.T) {
 		{
 			name: "Subscribe with invalid topic",
 			test: func(t *testing.T) {
-				subscriber := sub.NewChSubscriber("sub1", topic, make(chan any), time.Hour)
+				subscriber := sub.NewChSubscriber("sub1", topic, make(chan any), time.Millisecond, 1)
 
 				err := cp.Subscribe(subscriber, topic)
 				if err != errs.ErrInvalidTopic {
@@ -69,7 +69,7 @@ func TestGetSubsByTopic(t *testing.T) {
 			test: func(t *testing.T) {
 				cp := NewChPublisher("test")
 
-				subscriber := sub.NewChSubscriber("sub1", topic, make(chan any), time.Millisecond)
+				subscriber := sub.NewChSubscriber("sub1", topic, make(chan any), time.Millisecond, 1)
 
 				cp.CreateTopic(topic)
 				cp.Subscribe(subscriber, topic)
@@ -85,8 +85,8 @@ func TestGetSubsByTopic(t *testing.T) {
 			test: func(t *testing.T) {
 				cp := NewChPublisher("test")
 
-				subscriber1 := sub.NewChSubscriber("sub1", topic, make(chan any), time.Millisecond)
-				subscriber2 := sub.NewChSubscriber("sub2", topic, make(chan any), time.Millisecond)
+				subscriber1 := sub.NewChSubscriber("sub1", topic, make(chan any), time.Millisecond, 1)
+				subscriber2 := sub.NewChSubscriber("sub2", topic, make(chan any), time.Millisecond, 1)
 
 				cp.CreateTopic(topic)
 				cp.Subscribe(subscriber1, topic)
@@ -127,7 +127,7 @@ func TestGetTopics(t *testing.T) {
 				cp := NewChPublisher("test")
 				topic := "testTopic"
 
-				subscriber := sub.NewChSubscriber("sub1", topic, make(chan any), time.Millisecond)
+				subscriber := sub.NewChSubscriber("sub1", topic, make(chan any), time.Millisecond, 1)
 
 				cp.CreateTopic(topic)
 				cp.Subscribe(subscriber, topic)
@@ -145,8 +145,8 @@ func TestGetTopics(t *testing.T) {
 				topic := "testTopic"
 				topic2 := "testTopic2"
 
-				subscriber1 := sub.NewChSubscriber("sub1", topic, make(chan any), time.Millisecond)
-				subscriber2 := sub.NewChSubscriber("sub2", topic, make(chan any), time.Millisecond)
+				subscriber1 := sub.NewChSubscriber("sub1", topic, make(chan any), time.Millisecond, 1)
+				subscriber2 := sub.NewChSubscriber("sub2", topic, make(chan any), time.Millisecond, 1)
 
 				cp.CreateTopic(topic)
 				cp.CreateTopic(topic2)
@@ -252,7 +252,7 @@ func TestPublishToClosedSubscriber(t *testing.T) {
 
 	cp.CreateTopic(topic)
 
-	subscriber1 := sub.NewChSubscriber("sub1", topic, make(chan any), time.Second*1)
+	subscriber1 := sub.NewChSubscriber("sub1", topic, make(chan any), time.Millisecond, 1)
 
 	cp.Subscribe(subscriber1, topic)
 
@@ -276,16 +276,20 @@ func TestPublishToSubscriber(t *testing.T) {
 
 	cp.CreateTopic(topic)
 
-	subscriber1 := sub.NewChSubscriber("sub1", topic, make(chan any), time.Second*1)
+	subscriber1 := sub.NewChSubscriber("sub1", topic, make(chan any), time.Millisecond, 1)
 
 	cp.Subscribe(subscriber1, topic)
 
-	message := &msg.GenericMessageHolder{Body: "test message"}
+	message := &msg.GenericMessageHolder{
+		Topic: "foo",
+		Body:  "test message",
+		Id:    "bar",
+	}
 
 	go subscriber1.Listen(cp.GetWaitGroup())
 
 	cp.Publish(message, topic)
 
-	cp.GetWaitGroup().Wait()
+	cp.Done()
 
 }

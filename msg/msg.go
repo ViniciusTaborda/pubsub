@@ -17,5 +17,5 @@ func (gmh *GenericMessageHolder) GetStringBody() string {
 }
 
 func (gmh *GenericMessageHolder) String() string {
-	return fmt.Sprintf("%s - %s - %s \n", gmh.Id, gmh.Topic, gmh.Body)
+	return fmt.Sprintf("%s - %s - %s", gmh.Id, gmh.Topic, gmh.Body)
 }

@@ -31,7 +31,7 @@ func TestGenericMessageHolder(t *testing.T) {
 			name: "String returns the correct string representation",
 			test: func(t *testing.T) {
 				message := &GenericMessageHolder{Id: "1", Topic: "test topic", Body: "test body"}
-				expected := "1 - test topic - test body \n"
+				expected := "1 - test topic - test body"
 				if message.String() != expected {
 					t.Errorf("Expected string representation to be '%s', got '%s'", expected, message.String())
 				}

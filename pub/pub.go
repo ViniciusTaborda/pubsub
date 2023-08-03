@@ -1,7 +1,6 @@
 package pub
 
 import (
-	"fmt"
 	"pubsub/errs"
 	"pubsub/file"
 	"pubsub/msg"
@@ -41,15 +40,9 @@ func (cp *ChannelPublisher) Publish(message msg.MessageHolder, topic string) err
 			continue
 		}
 
-		//Non-blocking send
-		select {
-		case subscriber.GetChannel() <- message:
-			fmt.Printf("Value sent to %s\n", subscriber.GetId())
+		subscriber.GetChannel() <- message
+		cp.MessageWriter.Write(message, cp.Id, subscriber.GetId(), topic)
 
-			cp.MessageWriter.Write(message, cp.Id, subscriber.GetId(), topic)
-
-		default:
-		}
 	}
 
 	return nil
@@ -82,6 +75,7 @@ func (cp *ChannelPublisher) Subscribe(subscriber sub.Subscriber, topic string) e
 	cp.GetWaitGroup().Add(1)
 
 	return nil
+
 }
 
 func (cp *ChannelPublisher) GetTopics() []string {
@@ -114,4 +108,8 @@ func (cp *ChannelPublisher) GetWaitGroup() *sync.WaitGroup {
 
 	return cp.WaitGroup
 
+}
+
+func (cp *ChannelPublisher) Done() {
+	cp.WaitGroup.Wait()
 }

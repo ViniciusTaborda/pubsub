@@ -14,4 +14,5 @@ type Publisher interface {
 	GetId() string
 	Subscribe(sub.Subscriber, string) error
 	GetWaitGroup() *sync.WaitGroup
+	Done()
 }

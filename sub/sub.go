@@ -13,32 +13,36 @@ type ChannelSubscriber struct {
 	MessageCh chan any
 	Closed    bool
 	TimeOut   time.Duration
+	Attempts  int
 }
 
-func NewChSubscriber(topic, id string, messageCh chan any, timeout time.Duration) Subscriber {
+func NewChSubscriber(topic, id string, messageCh chan any, timeout time.Duration, attempts int) Subscriber {
 
 	return &ChannelSubscriber{
 		Topic:     topic,
 		Id:        id,
 		MessageCh: messageCh,
 		TimeOut:   timeout,
+		Attempts:  attempts,
 	}
 
 }
 
 func (cs *ChannelSubscriber) Listen(waitGroup *sync.WaitGroup) any {
-
 	defer waitGroup.Done()
 
-	for {
+	for i := 1; i < cs.Attempts+1; i++ {
 		select {
 		case message := <-cs.MessageCh:
-			fmt.Println(message.(msg.MessageHolder))
-			return message
+			fmt.Printf("Received: %s\n", message.(msg.MessageHolder))
 		case <-cs.GetTimeOut():
-			return nil
+			fmt.Printf(
+				"%s - %d Attempt - Nothing received... \n",
+				cs.Id, i)
 		}
 	}
+
+	return nil
 
 }
 
