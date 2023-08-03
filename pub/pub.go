@@ -1,55 +1,62 @@
 package pub
 
 import (
+	"fmt"
 	"pubsub/errs"
 	"pubsub/msg"
 	"pubsub/sub"
 	"sync"
 )
 
-type Publisher interface {
-	Publish(any, string) error
-	GetSubsByTopic(string) []sub.Subscriber
-	AddTopic(string)
-	GetTopics() []string
-	GetId() string
-	Subscribe(sub.Subscriber, string) error
-}
-
 type ChannelPublisher struct {
 	Id          string
-	Subscribers sync.Map
+	Subscribers *sync.Map
+	WaitGroup   *sync.WaitGroup
+}
+
+func NewChPublisher(id string) Publisher {
+
+	return &ChannelPublisher{
+		Id:          id,
+		Subscribers: &sync.Map{},
+		WaitGroup:   &sync.WaitGroup{},
+	}
+
 }
 
 func (cp *ChannelPublisher) Publish(message msg.MessageHolder, topic string) error {
 
 	subs := cp.GetSubsByTopic(topic)
 
-	for _, sub := range subs {
+	subsSlice := subs.([]any)
 
-		if sub.IsClosed() {
+	for _, s := range subsSlice {
+
+		subscriber := s.(sub.Subscriber)
+
+		if subscriber.IsClosed() {
 			continue
 		}
 
-		sub.GetChannel() <- message
-
+		//Non-blocking send
+		select {
+		case subscriber.GetChannel() <- message:
+			fmt.Printf("Value sent to %s\n", subscriber.GetId())
+		default:
+		}
 	}
 
 	return nil
 }
-func (cp *ChannelPublisher) GetSubsByTopic(topic string) []sub.Subscriber {
+
+func (cp *ChannelPublisher) GetSubsByTopic(topic string) any {
 
 	subs, ok := cp.Subscribers.Load(topic)
 	if !ok {
-		return []sub.Subscriber{}
+		return []any{}
 	}
 
-	subsList, ok := subs.([]sub.Subscriber)
-	if !ok {
-		return []sub.Subscriber{}
-	}
-
-	return subsList
+	return subs
 }
 
 func (cp *ChannelPublisher) Subscribe(subscriber sub.Subscriber, topic string) error {
@@ -66,6 +73,8 @@ func (cp *ChannelPublisher) Subscribe(subscriber sub.Subscriber, topic string) e
 	updatedList := append(subs.([]any), subscriber)
 	cp.Subscribers.Store(topic, updatedList)
 
+	cp.GetWaitGroup().Add(1)
+
 	return nil
 }
 
@@ -81,8 +90,22 @@ func (cp *ChannelPublisher) GetTopics() []string {
 
 }
 
+func (cp *ChannelPublisher) CreateTopic(topic string) {
+
+	_, ok := cp.Subscribers.Load(topic)
+	if !ok {
+		cp.Subscribers.Store(topic, []any{})
+	}
+}
+
 func (cp *ChannelPublisher) GetId() string {
 
 	return cp.Id
+
+}
+
+func (cp *ChannelPublisher) GetWaitGroup() *sync.WaitGroup {
+
+	return cp.WaitGroup
 
 }

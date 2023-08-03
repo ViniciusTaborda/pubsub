@@ -3,35 +3,39 @@ package sub
 import (
 	"fmt"
 	"pubsub/msg"
+	"sync"
 	"time"
 )
-
-type Subscriber interface {
-	ListenMessages() any
-	GetTopic() string
-	GetId() string
-	GetChannel() chan any
-	GetTimeOut() time.Duration
-	IsClosed() bool
-	Close()
-}
 
 type ChannelSubscriber struct {
 	Topic     string
 	Id        string
 	MessageCh chan any
 	Closed    bool
-	TimeOut   <-chan time.Time
+	TimeOut   time.Duration
 }
 
-func (cs *ChannelSubscriber) ListenMessages() any {
+func NewChSubscriber(topic, id string, messageCh chan any, timeout time.Duration) Subscriber {
+
+	return &ChannelSubscriber{
+		Topic:     topic,
+		Id:        id,
+		MessageCh: messageCh,
+		TimeOut:   timeout,
+	}
+
+}
+
+func (cs *ChannelSubscriber) Listen(waitGroup *sync.WaitGroup) any {
+
+	defer waitGroup.Done()
 
 	for {
 		select {
 		case message := <-cs.MessageCh:
 			fmt.Println(message.(msg.MessageHolder))
 			return message
-		case <-cs.TimeOut:
+		case <-cs.GetTimeOut():
 			return nil
 		}
 	}
@@ -55,7 +59,7 @@ func (cs *ChannelSubscriber) GetChannel() chan any {
 
 func (cs *ChannelSubscriber) GetTimeOut() <-chan time.Time {
 
-	return cs.TimeOut
+	return time.After(cs.TimeOut)
 }
 
 func (cs *ChannelSubscriber) IsClosed() bool {
