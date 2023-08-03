@@ -11,6 +11,19 @@ The Publish-Subscribe pattern is a messaging pattern where publishers send messa
  - Message publishing retry
  - Make the logging in file system more flexible and customizable
 
+## Code Coverage
+To view the code coverage, follow these steps:
+
+ - Run the following command at the root folder of this project:
+ ```
+ make run tests
+ ```
+- This will run the tests and export the coverage information to a `coverage.html` file. 
+- Open it in any web browser
+
+- See example: 
+
+
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for more information.
